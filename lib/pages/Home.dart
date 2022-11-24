@@ -2,6 +2,7 @@ import 'package:donit/objectbox.g.dart';
 import 'package:flutter/material.dart';
 import 'package:donit/models/grupo.dart';
 import 'package:donit/pages/AgregarGrupo.dart';
+import 'package:donit/pages/Tareas.dart';
 import 'package:objectbox/objectbox.dart';
 
 class Home extends StatefulWidget {
@@ -41,10 +42,26 @@ class _HomeState extends State<Home> {
     _loadGroups();
   }
 
+  Future<void> _irTarea(Grupo grupo) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => Tareas(grupo: grupo, store: _store),
+      ),
+    );
+
+    _loadGroups();
+  }
+
   @override
   void initState() {
     _loadStore();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _store.close();
+    super.dispose();
   }
 
   @override
@@ -65,7 +82,7 @@ class _HomeState extends State<Home> {
               itemBuilder: (context, index) {
                 final grupo = _grupos[index];
                 return _ItemGrupo(
-                  onTap: () => null, //_irTareas(grupo),
+                  onTap: () => _irTarea(grupo),
                   grupo: grupo,
                 );
               },
