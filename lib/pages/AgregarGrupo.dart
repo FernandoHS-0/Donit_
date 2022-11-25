@@ -32,121 +32,112 @@ class _AgregarGrupoState extends State<AgregarGrupo> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      contentPadding: EdgeInsets.zero,
-      insetPadding: EdgeInsets.zero,
+      scrollable: true,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5.0))),
       content: SizedBox(
-        height: MediaQuery.of(context).size.height / 1.5,
-        width: MediaQuery.of(context).size.width,
+        height: 200,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Container(
-                color: colorSeleccionado,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.group,
-                      size: 60,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: TextField(
-                        controller: textController,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 28, fontWeight: FontWeight.bold),
-                        decoration: const InputDecoration(
-                          hintText: 'Nombre de la lista',
-                          border: InputBorder.none,
-                        ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: TextField(
+                controller: textController,
+                textAlign: TextAlign.center,
+                textCapitalization: TextCapitalization.sentences,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                decoration: InputDecoration(
+                    hintText: 'Nombre de la lista',
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: colorSeleccionado,
+                        width: 2,
                       ),
-                    ),
-                  ],
+                      borderRadius: BorderRadius.circular(50),
+                    )),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  errorMessage ?? '',
+                  style: const TextStyle(color: Colors.red),
                 ),
               ),
             ),
-            Expanded(
-              child: Container(
-                color: Colors.white,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      height: 20,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          errorMessage ?? '',
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
-                      child: Text('Selecciona un color'),
-                    ),
-                    Expanded(
-                      child: GridView.builder(
-                        scrollDirection: Axis.horizontal,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
-                        itemCount: Colors.primaries.length,
-                        itemBuilder: (context, index) {
-                          final color = Colors.primaries[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 5),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  colorSeleccionado = color;
-                                });
-                              },
-                              child: CircleAvatar(
-                                backgroundColor: color,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
-                      child: MaterialButton(
-                        color: Colors.blue,
-                        child: const Padding(
-                          padding: EdgeInsets.all(15),
-                          child: Text(
-                            'Crear lista',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        onPressed: _onSave,
-                      ),
-                    ),
-                  ],
+            const Padding(
+              padding: EdgeInsets.only(left: 5),
+              child: Text('Selecciona un color'),
+            ),
+            SizedBox(
+              height: 100,
+              child: GridView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
                 ),
+                itemCount: Colors.primaries.length,
+                itemBuilder: (context, index) {
+                  final color = Colors.primaries[index];
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          colorSeleccionado = color;
+                          print(colorSeleccionado);
+                        });
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: color,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
         ),
       ),
+      actions: [
+        MaterialButton(
+            color: Colors.white,
+            shape: StadiumBorder(),
+            child: const Padding(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            }),
+        MaterialButton(
+          color: Colors.blue,
+          shape: StadiumBorder(),
+          child: const Padding(
+            padding: EdgeInsets.all(15),
+            child: Text(
+              'Crear lista',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+          onPressed: _onSave,
+        ),
+      ],
     );
   }
 }

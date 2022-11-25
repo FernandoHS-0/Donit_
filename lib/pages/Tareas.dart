@@ -18,6 +18,7 @@ class _TareasState extends State<Tareas> {
   final textController = TextEditingController();
 
   final _tareas = <Tarea>[];
+  Color bgColor = Colors.primaries.first;
 
   void _onSave() {
     final descripcion = textController.text.trim();
@@ -57,14 +58,17 @@ class _TareasState extends State<Tareas> {
   @override
   void initState() {
     _tareas.addAll(List.from(widget.grupo.tareas));
+    bgColor = Color(widget.grupo.color);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(widget.grupo.nombre),
+        backgroundColor: bgColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
