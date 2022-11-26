@@ -1,6 +1,7 @@
 import 'package:donit/models/grupo.dart';
 import 'package:donit/objectbox.g.dart';
 import 'package:donit/models/tarea.dart';
+import 'package:donit/pages/AgregarTarea.dart';
 import 'package:flutter/material.dart';
 
 class Tareas extends StatefulWidget {
@@ -15,10 +16,12 @@ class Tareas extends StatefulWidget {
 }
 
 class _TareasState extends State<Tareas> {
+  late final Store _store;
+  late final Box<Tarea> _tareasBox;
   final textController = TextEditingController();
 
   final _tareas = <Tarea>[];
-  Color bgColor = Colors.primaries.first;
+  Color bgColor = Color(0xFFB6EEFC);
 
   void _onSave() {
     final descripcion = textController.text.trim();
@@ -55,6 +58,25 @@ class _TareasState extends State<Tareas> {
     _reloadTsaks();
   }
 
+  void _loadTareas() {
+    _tareas.clear();
+    setState(() {
+      _tareas.addAll(_tareasBox.getAll());
+    });
+  }
+
+  Future<void> _agregarTarea() async {
+    final resultado = await showDialog(
+      context: context,
+      builder: (_) => const AgregarTarea(),
+    );
+
+    if (resultado != null && resultado is Tarea) {
+      _tareasBox.put(resultado);
+      _loadTareas();
+    }
+  }
+
   @override
   void initState() {
     _tareas.addAll(List.from(widget.grupo.tareas));
@@ -67,55 +89,64 @@ class _TareasState extends State<Tareas> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: Text(widget.grupo.nombre),
+        title: Text(
+          widget.grupo.nombre,
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: bgColor,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(top: 20, bottom: 20, right: 30),
         child: Column(
           children: [
-            TextField(
-              controller: textController,
-              decoration: const InputDecoration(
-                hintText: 'Tarea',
-              ),
-            ),
-            const SizedBox(height: 10),
-            MaterialButton(
-              color: Colors.blue,
-              child: const Padding(
-                padding: EdgeInsets.all(15),
-                child: Text(
-                  'Crear tarea',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              onPressed: _onSave,
-            ),
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
                 itemCount: _tareas.length,
                 itemBuilder: (context, index) {
                   final tarea = _tareas[index];
-                  return ListTile(
-                    title: Text(
-                      tarea.descripcion,
-                      style: TextStyle(
-                        decoration: tarea.completada
-                            ? TextDecoration.lineThrough
-                            : null,
+                  return Padding(
+                    padding: EdgeInsets.only(top: 15),
+                    child: Material(
+                      elevation: 20,
+                      shadowColor: Colors.black.withAlpha(90),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(0),
+                          right: Radius.circular(50),
+                        ),
                       ),
-                    ),
-                    leading: Checkbox(
-                      value: tarea.completada,
-                      onChanged: ((value) => _onUpdate(index, value!)),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => _onDelete(tarea),
+                      child: ListTile(
+                        visualDensity: VisualDensity(vertical: 4),
+                        tileColor: tarea.completada
+                            ? Color(0xFFA0D892)
+                            : Color(0xFFB6EEFC),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(0),
+                            right: Radius.circular(50),
+                          ),
+                        ),
+                        title: Text(
+                          tarea.descripcion,
+                          style: TextStyle(
+                            decoration: tarea.completada
+                                ? TextDecoration.lineThrough
+                                : null,
+                          ),
+                        ),
+                        leading: Checkbox(
+                          checkColor: Colors.white,
+                          value: tarea.completada,
+                          onChanged: ((value) => _onUpdate(index, value!)),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                          ),
+                          onPressed: () => _onDelete(tarea),
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -123,6 +154,13 @@ class _TareasState extends State<Tareas> {
             )
           ],
         ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        label: const Text("+"),
+        onPressed: () {
+          _agregarTarea();
+        },
       ),
     );
   }
