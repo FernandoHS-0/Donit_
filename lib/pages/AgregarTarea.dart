@@ -1,5 +1,5 @@
+import 'package:donit/services/notifications_services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:donit/models/grupo.dart';
 import 'package:donit/objectbox.g.dart';
 import 'package:donit/models/tarea.dart';
@@ -23,7 +23,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
   TimeOfDay time = const TimeOfDay(hour: 12, minute: 0);
   DateTime date = DateTime(2022, 11, 26);
 
-  void _onSave() {
+  void _onSave() async {
     final titulo = tituloCOntroller.text.trim();
     final descripcion = textController.text.trim();
     final fecha =
@@ -35,8 +35,9 @@ class _AgregarTareaState extends State<AgregarTarea> {
       final tarea =
           Tarea(titulo: titulo, descripcion: descripcion, fecha: fecha);
       tarea.grupo.target = widget.grupo;
+      await programarNotificacion(
+          id: tarea.id, titulo: titulo, descripcion: descripcion, fecha: fecha);
       widget.store.box<Tarea>().put(tarea);
-      _reloadTsaks();
       Navigator.of(context).pop(tarea);
     }
   }
@@ -79,7 +80,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                height: 0,
+                height: 1,
               ),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -105,7 +106,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                height: 0,
+                height: 1,
               ),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -118,9 +119,9 @@ class _AgregarTareaState extends State<AgregarTarea> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.zero,
+              padding: EdgeInsets.only(top: 15),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   MaterialButton(
                     color: Colors.blue,
@@ -159,13 +160,13 @@ class _AgregarTareaState extends State<AgregarTarea> {
                     color: Colors.blue,
                     shape: StadiumBorder(),
                     minWidth: 30,
-                    padding: EdgeInsets.all(1),
+                    padding: EdgeInsets.symmetric(horizontal: 5),
                     child: Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Icon(
-                            Icons.lock_clock,
+                            Icons.timer,
                             size: 24,
                             color: Colors.white,
                           ),
@@ -196,7 +197,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
       ),
       actions: [
         MaterialButton(
-            color: Color(0xFF649FF8),
+            color: Colors.white,
             shape: StadiumBorder(),
             child: const Padding(
               padding: EdgeInsets.all(15),

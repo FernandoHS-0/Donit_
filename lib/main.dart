@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:donit/pages/onBoarding.dart';
 import 'package:donit/pages/Home.dart';
+import 'package:donit/services/notifications_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await initNotifiaction();
 
   final prefs = await SharedPreferences.getInstance();
   final showHome = prefs.getBool('showHome') ?? false;
