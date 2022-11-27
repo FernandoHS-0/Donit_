@@ -29,7 +29,7 @@
     },
     {
       "id": "2:5873960128870502452",
-      "lastPropertyId": "4:5677145690076276509",
+      "lastPropertyId": "6:857255882706478419",
       "name": "Tarea",
       "properties": [
         {
@@ -55,6 +55,16 @@
           "flags": 520,
           "indexId": "1:870652091699346089",
           "relationTarget": "Grupo"
+        },
+        {
+          "id": "5:5739066338533810683",
+          "name": "titulo",
+          "type": 9
+        },
+        {
+          "id": "6:857255882706478419",
+          "name": "fecha",
+          "type": 10
         }
       ],
       "relations": []

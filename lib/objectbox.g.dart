@@ -49,7 +49,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(2, 5873960128870502452),
       name: 'Tarea',
-      lastPropertyId: const IdUid(4, 5677145690076276509),
+      lastPropertyId: const IdUid(6, 857255882706478419),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -73,7 +73,17 @@ final _entities = <ModelEntity>[
             type: 11,
             flags: 520,
             indexId: const IdUid(1, 870652091699346089),
-            relationTarget: 'Grupo')
+            relationTarget: 'Grupo'),
+        ModelProperty(
+            id: const IdUid(5, 5739066338533810683),
+            name: 'titulo',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 857255882706478419),
+            name: 'fecha',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
@@ -160,11 +170,14 @@ ModelDefinition getObjectBoxModel() {
         },
         objectToFB: (Tarea object, fb.Builder fbb) {
           final descripcionOffset = fbb.writeString(object.descripcion);
-          fbb.startTable(5);
+          final tituloOffset = fbb.writeString(object.titulo);
+          fbb.startTable(7);
           fbb.addInt64(0, object.id);
           fbb.addOffset(1, descripcionOffset);
           fbb.addBool(2, object.completada);
           fbb.addInt64(3, object.grupo.targetId);
+          fbb.addOffset(4, tituloOffset);
+          fbb.addInt64(5, object.fecha.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -173,8 +186,12 @@ ModelDefinition getObjectBoxModel() {
           final rootOffset = buffer.derefObject(0);
 
           final object = Tarea(
+              titulo: const fb.StringReader(asciiOptimization: true)
+                  .vTableGet(buffer, rootOffset, 12, ''),
               descripcion: const fb.StringReader(asciiOptimization: true)
-                  .vTableGet(buffer, rootOffset, 6, ''))
+                  .vTableGet(buffer, rootOffset, 6, ''),
+              fecha: DateTime.fromMillisecondsSinceEpoch(
+                  const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0)))
             ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
             ..completada =
                 const fb.BoolReader().vTableGet(buffer, rootOffset, 8, false);
@@ -216,4 +233,10 @@ class Tarea_ {
   /// see [Tarea.grupo]
   static final grupo =
       QueryRelationToOne<Tarea, Grupo>(_entities[1].properties[3]);
+
+  /// see [Tarea.titulo]
+  static final titulo = QueryStringProperty<Tarea>(_entities[1].properties[4]);
+
+  /// see [Tarea.fecha]
+  static final fecha = QueryIntegerProperty<Tarea>(_entities[1].properties[5]);
 }

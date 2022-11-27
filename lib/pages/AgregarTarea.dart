@@ -5,7 +5,11 @@ import 'package:donit/objectbox.g.dart';
 import 'package:donit/models/tarea.dart';
 
 class AgregarTarea extends StatefulWidget {
-  const AgregarTarea({super.key});
+  const AgregarTarea({required this.grupo, required this.store, Key? key})
+      : super(key: key);
+
+  final Grupo grupo;
+  final Store store;
 
   @override
   State<AgregarTarea> createState() => _AgregarTareaState();
@@ -13,7 +17,42 @@ class AgregarTarea extends StatefulWidget {
 
 class _AgregarTareaState extends State<AgregarTarea> {
   final textController = TextEditingController();
+  final tituloCOntroller = TextEditingController();
   Color bgColor = Colors.primaries.first;
+  final _tareas = <Tarea>[];
+  TimeOfDay time = const TimeOfDay(hour: 12, minute: 0);
+  DateTime date = DateTime(2022, 11, 26);
+
+  void _onSave() {
+    final titulo = tituloCOntroller.text.trim();
+    final descripcion = textController.text.trim();
+    final fecha =
+        new DateTime(date.year, date.month, date.day, time.hour, time.minute);
+
+    if (titulo.isNotEmpty && descripcion.isNotEmpty) {
+      tituloCOntroller.clear();
+      textController.clear();
+      final tarea =
+          Tarea(titulo: titulo, descripcion: descripcion, fecha: fecha);
+      tarea.grupo.target = widget.grupo;
+      widget.store.box<Tarea>().put(tarea);
+      _reloadTsaks();
+      Navigator.of(context).pop(tarea);
+    }
+  }
+
+  void _reloadTsaks() {
+    _tareas.clear();
+    QueryBuilder<Tarea> builder = widget.store.box<Tarea>().query();
+    builder.link(Tarea_.grupo, Grupo_.id.equals(widget.grupo.id));
+    Query<Tarea> query = builder.build();
+    List<Tarea> resultadosT = query.find();
+    setState(() {
+      _tareas.addAll(resultadosT);
+    });
+    query.close();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -22,7 +61,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(5.0))),
       content: SizedBox(
-        height: MediaQuery.of(context).size.height / 2.2,
+        height: MediaQuery.of(context).size.height / 2.3,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -34,11 +73,11 @@ class _AgregarTareaState extends State<AgregarTarea> {
               ),
             ),
             TextField(
-              controller: textController,
+              controller: tituloCOntroller,
               textAlign: TextAlign.center,
               textCapitalization: TextCapitalization.sentences,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
                 height: 0,
               ),
@@ -64,7 +103,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
               textAlign: TextAlign.center,
               textCapitalization: TextCapitalization.sentences,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
                 height: 0,
               ),
@@ -79,7 +118,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              padding: EdgeInsets.zero,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -87,10 +126,9 @@ class _AgregarTareaState extends State<AgregarTarea> {
                     color: Colors.blue,
                     shape: StadiumBorder(),
                     minWidth: 30,
-                    padding: EdgeInsets.all(10),
                     child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Icon(
                             Icons.calendar_month,
@@ -98,19 +136,30 @@ class _AgregarTareaState extends State<AgregarTarea> {
                             color: Colors.white,
                           ),
                           Text(
-                            'Fecha',
+                            '${date.year}/${date.month}/${date.day}',
                             style: TextStyle(
                               color: Colors.white,
                             ),
                           ),
                         ]),
-                    onPressed: () {},
+                    onPressed: () async {
+                      DateTime? newDate = await showDatePicker(
+                        context: context,
+                        initialDate: date,
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2100),
+                      );
+                      if (newDate == null) return;
+                      setState(() {
+                        date = newDate;
+                      });
+                    },
                   ),
                   MaterialButton(
                     color: Colors.blue,
                     shape: StadiumBorder(),
                     minWidth: 30,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    padding: EdgeInsets.all(1),
                     child: Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -121,13 +170,23 @@ class _AgregarTareaState extends State<AgregarTarea> {
                             color: Colors.white,
                           ),
                           Text(
-                            'Hora',
+                            '${time.hour.toString()}:${time.minute.toString()}',
                             style: TextStyle(
                               color: Colors.white,
                             ),
                           ),
                         ]),
-                    onPressed: () {},
+                    onPressed: () async {
+                      TimeOfDay? newTIme = await showTimePicker(
+                        context: context,
+                        initialTime: time,
+                      );
+                      if (newTIme != null) {
+                        setState(() {
+                          time = newTIme;
+                        });
+                      }
+                    },
                   ),
                 ],
               ),
@@ -137,7 +196,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
       ),
       actions: [
         MaterialButton(
-            color: Colors.white,
+            color: Color(0xFF649FF8),
             shape: StadiumBorder(),
             child: const Padding(
               padding: EdgeInsets.all(15),
@@ -152,7 +211,7 @@ class _AgregarTareaState extends State<AgregarTarea> {
               Navigator.of(context).pop();
             }),
         MaterialButton(
-          color: Colors.blue,
+          color: Color(0xFF649FF8),
           shape: StadiumBorder(),
           child: const Padding(
             padding: EdgeInsets.all(15),
@@ -163,7 +222,9 @@ class _AgregarTareaState extends State<AgregarTarea> {
               ),
             ),
           ),
-          onPressed: () {},
+          onPressed: () {
+            _onSave();
+          },
         ),
       ],
     );

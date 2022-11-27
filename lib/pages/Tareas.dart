@@ -16,23 +16,26 @@ class Tareas extends StatefulWidget {
 }
 
 class _TareasState extends State<Tareas> {
-  late final Store _store;
   late final Box<Tarea> _tareasBox;
   final textController = TextEditingController();
+  final titleController = TextEditingController();
 
   final _tareas = <Tarea>[];
   Color bgColor = Color(0xFFB6EEFC);
 
-  void _onSave() {
+  /*void _onSave() {
     final descripcion = textController.text.trim();
+    DateTime fecha = DateTime(2022, 11, 26);
+
     if (descripcion.isNotEmpty) {
       textController.clear();
-      final tarea = Tarea(descripcion: descripcion);
+      final tarea =
+          Tarea(descripcion: descripcion, titulo: titulo, fecha: fecha);
       tarea.grupo.target = widget.grupo;
       widget.store.box<Tarea>().put(tarea);
       _reloadTsaks();
     }
-  }
+  }*/
 
   void _reloadTsaks() {
     _tareas.clear();
@@ -68,12 +71,12 @@ class _TareasState extends State<Tareas> {
   Future<void> _agregarTarea() async {
     final resultado = await showDialog(
       context: context,
-      builder: (_) => const AgregarTarea(),
+      builder: (_) => AgregarTarea(grupo: widget.grupo, store: widget.store),
     );
 
     if (resultado != null && resultado is Tarea) {
-      _tareasBox.put(resultado);
-      _loadTareas();
+      widget.store.box<Tarea>().put(resultado);
+      _reloadTsaks();
     }
   }
 
@@ -128,13 +131,15 @@ class _TareasState extends State<Tareas> {
                           ),
                         ),
                         title: Text(
-                          tarea.descripcion,
+                          tarea.titulo,
                           style: TextStyle(
                             decoration: tarea.completada
                                 ? TextDecoration.lineThrough
                                 : null,
                           ),
                         ),
+                        subtitle: Text(
+                            tarea.descripcion + "\n" + tarea.fecha.toString()),
                         leading: Checkbox(
                           checkColor: Colors.white,
                           value: tarea.completada,
@@ -158,6 +163,7 @@ class _TareasState extends State<Tareas> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton.extended(
         label: const Text("+"),
+        backgroundColor: Color(0xFF649FF8),
         onPressed: () {
           _agregarTarea();
         },

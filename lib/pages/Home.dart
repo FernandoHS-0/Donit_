@@ -90,6 +90,7 @@ class _HomeState extends State<Home> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton.extended(
         label: const Text("+"),
+        backgroundColor: Color(0xFF649FF8),
         onPressed: _agregarGrupo,
       ),
     );

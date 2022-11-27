@@ -124,7 +124,7 @@ class _AgregarGrupoState extends State<AgregarGrupo> {
               Navigator.of(context).pop();
             }),
         MaterialButton(
-          color: Colors.blue,
+          color: Color(0xFF649FF8),
           shape: StadiumBorder(),
           child: const Padding(
             padding: EdgeInsets.all(15),
